@@ -48,6 +48,7 @@ class Base64ImageField(ImageField):
     def to_internal_value(self, base64_data):
         # Check if this is a base64 string
         if base64_data in EMPTY_VALUES:
+            import ipdb; ipdb.set_trace()
             return None
 
         if isinstance(base64_data, six.string_types):
@@ -81,7 +82,10 @@ class Base64ImageField(ImageField):
             try:
                 with open(image.path, 'rb') as f:
                     return base64.b64encode(f.read()).decode()
-            except Exception:
+            except ValueError as err:
+                # file field is null
+                return u''
+            except StandardError as err:
                 raise IOError("Error encoding image file")
         else:
             return super(ImageField, self).to_representation(image)
