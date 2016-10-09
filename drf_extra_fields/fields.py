@@ -48,7 +48,6 @@ class Base64ImageField(ImageField):
     def to_internal_value(self, base64_data):
         # Check if this is a base64 string
         if base64_data in EMPTY_VALUES:
-            import ipdb; ipdb.set_trace()
             return None
 
         if isinstance(base64_data, six.string_types):
@@ -85,6 +84,10 @@ class Base64ImageField(ImageField):
             except ValueError as err:
                 # file field is null
                 return u''
+            # TODO - this is a fix for S3 which does not allow absolute paths
+            # why isn't image.read() used directly in the try clause?
+            except NotImplementedError:
+                return base64.b64encode(image.read()).decode()
             except StandardError as err:
                 raise IOError("Error encoding image file")
         else:
